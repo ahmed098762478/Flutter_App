@@ -45,7 +45,7 @@ class Dashboard extends StatelessWidget {
                   _buildDashboardItem(
                       'assets/profile.jpg', 'sorties', context),
                   _buildDashboardItem(
-                      'assets/profile.jpg', 'participation', context),
+                      'assets/profile.jpg', 'participants', context),
                   _buildDashboardItem(
                       'assets/setting.jpg', 'Paramètre', context),
                   _buildDashboardItem('assets/profile.jpg', 'Profil', context),
