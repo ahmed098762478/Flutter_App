@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../loginScreen.dart';
 
 class Sidebar extends StatelessWidget {
-  const Sidebar({Key? key}) : super(key: key);
+  const Sidebar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +12,7 @@ class Sidebar extends StatelessWidget {
         children: <Widget>[
           DrawerHeader(
             decoration: BoxDecoration(
-              color: Color(0xFF2FCB85),
+              color: Color.fromARGB(255, 72, 80, 111),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

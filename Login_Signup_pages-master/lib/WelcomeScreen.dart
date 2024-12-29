@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'loginScreen.dart';
 
 class WelcomeScreen extends StatelessWidget {
-  const WelcomeScreen({Key? key}) : super(key: key);
+  const WelcomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +14,7 @@ class WelcomeScreen extends StatelessWidget {
         decoration: const BoxDecoration(
             gradient: LinearGradient(colors: [
           Color(0xFF2FCB85),
-          Color(0x0c7cad0),
+          Color(0x00c7cad0),
         ])),
         child: Column(children: [
           const Padding(

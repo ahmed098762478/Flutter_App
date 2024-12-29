@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'sidebar.dart';
 
 class Dashboard extends StatelessWidget {
-  const Dashboard({Key? key}) : super(key: key);
+  const Dashboard({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
-        backgroundColor: const Color(0xFF2FCB85),
+        backgroundColor: const Color.fromARGB(255, 104, 107, 181),
         leading: Builder(
           builder: (BuildContext context) {
             return IconButton(
@@ -21,10 +21,9 @@ class Dashboard extends StatelessWidget {
           },
         ),
       ),
-      drawer: const Drawer(), // Exemple de Sidebar si nécessaire
+      drawer: const Sidebar(),
       body: Stack(
         children: [
-          // Arrière-plan bleu transparent
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(

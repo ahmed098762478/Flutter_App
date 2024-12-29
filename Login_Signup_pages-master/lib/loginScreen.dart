@@ -3,14 +3,14 @@ import 'Represent/dashboard.dart';
 import 'Register.dart';  
 
 class loginScreen extends StatefulWidget {
-  const loginScreen({Key? key}) : super(key: key);
+  const loginScreen({super.key});
 
   @override
   _loginScreenState createState() => _loginScreenState();
 }
 
 class _loginScreenState extends State<loginScreen> {
-  String _role = 'Admin';
+  final String _role = 'Admin';
 
   @override
   Widget build(BuildContext context) {
