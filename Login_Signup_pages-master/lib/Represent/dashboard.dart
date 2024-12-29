@@ -24,95 +24,101 @@ class Dashboard extends StatelessWidget {
       drawer: const Sidebar(),
       body: Stack(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.blue.withOpacity(0.5),
-                  Colors.transparent,
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
+          // Image de fond couvrant tout l'écran
+          Positioned.fill(
+            child: Image.asset(
+              'assets/stars.jpg',  
+              fit: BoxFit.cover,
             ),
           ),
-          // Contenu principal
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Résumé des Marchés',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Premier résumé des marchés
-                _buildMarketSection(
-                  context,
-                  title: "Indices mondiaux",
-                  markets: [
-                    _buildMarketCard('CAC 40', '7 355,37 EUR', '+1,00%', Colors.green),
-                    _buildMarketCard('SBF 120', '5 570,33 EUR', '+0,99%', Colors.green),
-                    _buildMarketCard('S&P 500', '5 970,8 EUR', '-1,11%', Colors.red),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                // Deuxième résumé des marchés
-                _buildMarketSection(
-                  context,
-                  title: "Crypto-monnaies",
-                  markets: [
-                    _buildMarketCard('Bitcoin', '27 000 USD', '+3,12%', Colors.green),
-                    _buildMarketCard('Ethereum', '1 800 USD', '+2,43%', Colors.green),
-                    _buildMarketCard('Ripple', '0,50 USD', '-0,87%', Colors.red),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                // Troisième résumé des marchés
-                _buildMarketSection(
-                  context,
-                  title: "Actions européennes",
-                  markets: [
-                    _buildMarketCard('Airbus', '125 EUR', '+1,75%', Colors.green),
-                    _buildMarketCard('TotalEnergies', '54 EUR', '-0,32%', Colors.red),
-                    _buildMarketCard('BNP Paribas', '59 EUR', '+0,85%', Colors.green),
-                  ],
-                ),
-                const SizedBox(height: 32),
-                const Text(
-                  'Idées de la communauté',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+           Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.5),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildIdeaButton('Choix de la rédaction'),
-                    _buildIdeaButton('Pour vous'),
-                    _buildIdeaButton('Suivis'),
+                    const Text(
+                      'Résumé des Marchés',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                     _buildMarketSection(
+                      context,
+                      title: "Indices mondiaux",
+                      markets: [
+                        _buildMarketCard(
+                            'CAC 40', '7 355,37 EUR', '+1,00%', Colors.green),
+                        _buildMarketCard(
+                            'SBF 120', '5 570,33 EUR', '+0,99%', Colors.green),
+                        _buildMarketCard(
+                            'S&P 500', '5 970,8 EUR', '-1,11%', Colors.red),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                     _buildMarketSection(
+                      context,
+                      title: "Crypto-monnaies",
+                      markets: [
+                        _buildMarketCard(
+                            'Bitcoin', '27 000 USD', '+3,12%', Colors.green),
+                        _buildMarketCard(
+                            'Ethereum', '1 800 USD', '+2,43%', Colors.green),
+                        _buildMarketCard(
+                            'Ripple', '0,50 USD', '-0,87%', Colors.red),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    // Troisième résumé des marchés
+                    _buildMarketSection(
+                      context,
+                      title: "Actions européennes",
+                      markets: [
+                        _buildMarketCard(
+                            'Airbus', '125 EUR', '+1,75%', Colors.green),
+                        _buildMarketCard(
+                            'TotalEnergies', '54 EUR', '-0,32%', Colors.red),
+                        _buildMarketCard(
+                            'BNP Paribas', '59 EUR', '+0,85%', Colors.green),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+                    const Text(
+                      'Idées de la communauté',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildIdeaButton('Choix de la rédaction'),
+                        _buildIdeaButton('Pour vous'),
+                        _buildIdeaButton('Suivis'),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+                    const Text(
+                      'Actions Gagnantes',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildWinningStocksList(),
                   ],
                 ),
-                const SizedBox(height: 32),
-                const Text(
-                  'Actions Gagnantes',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _buildWinningStocksList(),
-              ],
+              ),
             ),
           ),
         ],
@@ -149,7 +155,8 @@ class Dashboard extends StatelessWidget {
     );
   }
 
-  Widget _buildMarketCard(String title, String value, String change, Color changeColor) {
+  Widget _buildMarketCard(
+      String title, String value, String change, Color changeColor) {
     return Container(
       width: 150,
       padding: const EdgeInsets.all(16.0),
