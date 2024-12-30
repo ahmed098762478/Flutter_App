@@ -225,7 +225,7 @@ class Dashboard extends StatelessWidget {
   }
 
   Widget _buildWinningStocksList() {
-    final stocks = [
+    final stocks = [ 
       {'name': "TRONIC'S MICROSYSTEMS", 'ticker': 'ALTRO', 'price': '5,00 EUR', 'change': '+48,81%'},
       {'name': 'CRYPTO BLOCKCHAIN INDUS.', 'ticker': 'ALCBI', 'price': '0,2030 EUR', 'change': '+21,92%'},
       {'name': 'MADE', 'ticker': 'MLMAD', 'price': '11,00 EUR', 'change': '+18,99%'},
@@ -233,7 +233,7 @@ class Dashboard extends StatelessWidget {
       {'name': 'TERACT S.A.', 'ticker': 'TRACT', 'price': '1,036 EUR', 'change': '+17,10%'},
     ];
 
-    return ListView.builder(
+    return ListView.builder(  
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: stocks.length,

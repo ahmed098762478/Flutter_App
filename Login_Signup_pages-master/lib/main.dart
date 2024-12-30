@@ -1,28 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
-import 'WelcomeScreen.dart';
+import 'SplashScreen.dart';
 
 void main() {
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-  ));
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-   
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      title: 'Splash Screen Example',
       theme: ThemeData(
-        fontFamily: ('inter'),
-        useMaterial3: true,
+        primarySwatch: Colors.blue,
       ),
-      home: const WelcomeScreen(),
+      home: const SplashScreen(), // Définissez SplashScreen comme écran d'accueil
     );
   }
 }
