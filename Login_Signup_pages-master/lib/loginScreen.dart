@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'Represent/dashboard.dart';
 import 'Register.dart';
+import 'helpers/database_helper.dart';
 
 class loginScreen extends StatefulWidget {
   const loginScreen({super.key});
@@ -9,7 +10,106 @@ class loginScreen extends StatefulWidget {
   _loginScreenState createState() => _loginScreenState();
 }
 
-class _loginScreenState extends State<loginScreen> {
+class _loginScreenState extends State<loginScreen> with SingleTickerProviderStateMixin {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _scaleAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutBack,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _login() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      _showMessage('Tous les champs sont obligatoires', success: false);
+      return;
+    }
+
+    final dbHelper = DatabaseHelper();
+    final user = await dbHelper.getUserByEmailAndPassword(email, password);
+
+    if (user != null) {
+      _showMessage('Connexion réussie', success: true);
+      Future.delayed(const Duration(seconds: 2), () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Dashboard()),
+        );
+      });
+    } else {
+      _showMessage('Email ou mot de passe incorrect', success: false);
+    }
+  }
+
+  void _showMessage(String message, {required bool success}) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        _animationController.forward();
+        return Center(
+          child: Container(
+            width: 300,
+            height: 150,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ScaleTransition(
+                  scale: _scaleAnimation,
+                  child: Icon(
+                    success ? Icons.check_circle : Icons.error,
+                    color: success ? Colors.green : Colors.red,
+                    size: 50,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  message,
+                  style: TextStyle(
+                    color: success ? Colors.green : Colors.red,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    // Fermer automatiquement le popup après 2 secondes
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        Navigator.of(context).pop(); // Fermer le modal
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,8 +141,9 @@ class _loginScreenState extends State<loginScreen> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 50),
-                    const TextField(
-                      decoration: InputDecoration(
+                    TextField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -53,9 +154,10 @@ class _loginScreenState extends State<loginScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const TextField(
+                    TextField(
+                      controller: _passwordController,
                       obscureText: true,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -66,14 +168,8 @@ class _loginScreenState extends State<loginScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                     GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const Dashboard()),
-                        );
-                      },
+                    GestureDetector(
+                      onTap: _login,
                       child: Container(
                         height: 55,
                         width: 300,

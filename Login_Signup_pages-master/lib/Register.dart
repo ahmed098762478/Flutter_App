@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'helpers/database_helper.dart';
 
 class RegScreen extends StatefulWidget {
   const RegScreen({super.key});
@@ -7,22 +8,134 @@ class RegScreen extends StatefulWidget {
   _RegScreenState createState() => _RegScreenState();
 }
 
-class _RegScreenState extends State<RegScreen> {
+class _RegScreenState extends State<RegScreen> with SingleTickerProviderStateMixin {
+  final _fullNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+
+    _scaleAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutBack,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _registerUser() async {
+    final fullName = _fullNameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    if (fullName.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      _showMessage('Tous les champs sont obligatoires');
+      return;
+    }
+
+    if (password != confirmPassword) {
+      _showMessage('Les mots de passe ne correspondent pas');
+      return;
+    }
+
+    final dbHelper = DatabaseHelper();
+    final user = {
+      'fullName': fullName,
+      'email': email,
+      'password': password,
+    };
+
+    await dbHelper.insertUser(user);
+
+    // Afficher le popup de succès
+    _showSuccessPopup();
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  void _showSuccessPopup() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        // Démarre l'animation
+        _animationController.forward();
+        return Center(
+          child: Container(
+            width: 300,
+            height: 150,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ScaleTransition(
+                  scale: _scaleAnimation,
+                  child: const Icon(
+                    Icons.check_circle,
+                    color: Colors.green,
+                    size: 50,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Compte créé avec succès!',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    // Fermer le popup automatiquement après 2 secondes
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        Navigator.of(context).pop(); // Ferme le popup
+        Navigator.pop(context); // Retour à l'écran précédent
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Arrière-plan image couvrant tout l'écran
           Positioned.fill(
             child: Image.asset(
-              'assets/images.jpeg', // Assurez-vous que ce fichier existe
+              'assets/images.jpeg',
               fit: BoxFit.cover,
             ),
           ),
           Positioned.fill(
             child: Container(
-              color: Colors.black.withOpacity(0.5), // Fond semi-transparent
+              color: Colors.black.withOpacity(0.5),
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(
@@ -39,8 +152,9 @@ class _RegScreenState extends State<RegScreen> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 50),
-                    const TextField(
-                      decoration: InputDecoration(
+                    TextField(
+                      controller: _fullNameController,
+                      decoration: const InputDecoration(
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -51,8 +165,9 @@ class _RegScreenState extends State<RegScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const TextField(
-                      decoration: InputDecoration(
+                    TextField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -63,9 +178,10 @@ class _RegScreenState extends State<RegScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const TextField(
+                    TextField(
+                      controller: _passwordController,
                       obscureText: true,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -76,9 +192,10 @@ class _RegScreenState extends State<RegScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const TextField(
+                    TextField(
+                      controller: _confirmPasswordController,
                       obscureText: true,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -89,11 +206,8 @@ class _RegScreenState extends State<RegScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    // Bouton "Créer un compte"
                     GestureDetector(
-                      onTap: () {
-                        // Action à effectuer lors de la création d'un compte
-                      },
+                      onTap: _registerUser,
                       child: Container(
                         height: 55,
                         width: 300,
@@ -117,7 +231,6 @@ class _RegScreenState extends State<RegScreen> {
                       ),
                     ),
                     const SizedBox(height: 15),
-                    // Bouton "Retour à la connexion"
                     GestureDetector(
                       onTap: () {
                         Navigator.pop(context);

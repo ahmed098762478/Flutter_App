@@ -1,9 +1,39 @@
 import 'package:flutter/material.dart';
 import '../loginScreen.dart';
-import 'CryptoChartScreen.dart'; // Importez votre écran Crypto
+import 'CryptoChartScreen.dart';
+import 'Profile.dart'; 
+import 'Settings.dart';  
+import '../helpers/database_helper.dart';
 
-class Sidebar extends StatelessWidget {
+class Sidebar extends StatefulWidget {
   const Sidebar({super.key});
+
+  @override
+  _SidebarState createState() => _SidebarState();
+}
+
+class _SidebarState extends State<Sidebar> {
+  String userEmail = "Chargement...";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserEmail();
+  }
+
+  Future<void> _loadUserEmail() async {
+     final dbHelper = DatabaseHelper();
+    final users = await dbHelper.getAllUsers();  
+    if (users.isNotEmpty) {
+      setState(() {
+        userEmail = users.first['email'];  
+      });
+    } else {
+      setState(() {
+        userEmail = "Aucun utilisateur trouvé";
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +74,7 @@ class Sidebar extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           const Text(
-                            'TradingView',
+                            'En ligne',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.white,
@@ -54,9 +84,9 @@ class Sidebar extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 4),
-                      const Text(
-                        'Admin123@gmail.com',
-                        style: TextStyle(
+                      Text(
+                        userEmail,
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.white,
                         ),
@@ -71,15 +101,14 @@ class Sidebar extends StatelessWidget {
             leading: const Icon(Icons.local_hospital),
             title: const Text('Chart'),
             onTap: () {
-              Navigator.pop(context); // Fermez le menu latéral
+              Navigator.pop(context);  
             },
           ),
           ListTile(
             leading: const Icon(Icons.currency_bitcoin),
             title: const Text('Crypto'),
             onTap: () {
-              // Navigation vers CryptoChartScreen
-              Navigator.push(
+               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const CryptoChartScreen()),
               );
@@ -89,14 +118,20 @@ class Sidebar extends StatelessWidget {
             leading: const Icon(Icons.settings),
             title: const Text('Paramètre'),
             onTap: () {
-              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
             },
           ),
           ListTile(
             leading: const Icon(Icons.account_circle),
             title: const Text('Profil'),
             onTap: () {
-              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
             },
           ),
           const Divider(),
