@@ -66,8 +66,7 @@ class _loginScreenState extends State<loginScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    // Bouton "Se connecter"
-                    GestureDetector(
+                     GestureDetector(
                       onTap: () {
                         Navigator.push(
                           context,
