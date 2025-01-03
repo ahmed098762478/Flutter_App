@@ -62,8 +62,7 @@ class _RegScreenState extends State<RegScreen> with SingleTickerProviderStateMix
 
     await dbHelper.insertUser(user);
 
-    // Afficher le popup de succès
-    _showSuccessPopup();
+     _showSuccessPopup();
   }
 
   void _showMessage(String message) {
@@ -113,11 +112,10 @@ class _RegScreenState extends State<RegScreen> with SingleTickerProviderStateMix
       },
     );
 
-    // Fermer le popup automatiquement après 2 secondes
-    Future.delayed(const Duration(seconds: 2), () {
+     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
-        Navigator.of(context).pop(); // Ferme le popup
-        Navigator.pop(context); // Retour à l'écran précédent
+        Navigator.of(context).pop();  
+        Navigator.pop(context);  
       }
     });
   }

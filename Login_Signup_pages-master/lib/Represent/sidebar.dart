@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled3/Represent/UserScreen.dart';
 import '../loginScreen.dart';
 import 'CryptoChartScreen.dart';
 import 'Profile.dart'; 
@@ -22,18 +23,19 @@ class _SidebarState extends State<Sidebar> {
   }
 
   Future<void> _loadUserEmail() async {
-     final dbHelper = DatabaseHelper();
-    final users = await dbHelper.getAllUsers();  
-    if (users.isNotEmpty) {
-      setState(() {
-        userEmail = users.first['email'];  
-      });
-    } else {
-      setState(() {
-        userEmail = "Aucun utilisateur trouvé";
-      });
-    }
+  final dbHelper = DatabaseHelper();
+  final currentUser = await dbHelper.getCurrentUser();
+  if (currentUser != null) {
+    setState(() {
+      userEmail = currentUser['email'];
+    });
+  } else {
+    setState(() {
+      userEmail = "Aucun utilisateur trouvé";
+    });
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -98,12 +100,16 @@ class _SidebarState extends State<Sidebar> {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.local_hospital),
-            title: const Text('Chart'),
-            onTap: () {
-              Navigator.pop(context);  
-            },
-          ),
+  leading: const Icon(Icons.local_hospital),
+  title: const Text('Utilisateurs'),
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const UserScreen()),
+    );
+  },
+),
+
           ListTile(
             leading: const Icon(Icons.currency_bitcoin),
             title: const Text('Crypto'),

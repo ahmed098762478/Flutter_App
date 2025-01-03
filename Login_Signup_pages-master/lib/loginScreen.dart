@@ -28,6 +28,8 @@ class _loginScreenState extends State<loginScreen> with SingleTickerProviderStat
       parent: _animationController,
       curve: Curves.easeOutBack,
     );
+
+     DatabaseHelper().addIsConnectedColumn();
   }
 
   @override
@@ -49,7 +51,7 @@ class _loginScreenState extends State<loginScreen> with SingleTickerProviderStat
     final user = await dbHelper.getUserByEmailAndPassword(email, password);
 
     if (user != null) {
-      _showMessage('Connexion réussie', success: true);
+      await dbHelper.setCurrentUser(email);  
       Future.delayed(const Duration(seconds: 2), () {
         Navigator.pushReplacement(
           context,
@@ -102,8 +104,7 @@ class _loginScreenState extends State<loginScreen> with SingleTickerProviderStat
       },
     );
 
-    // Fermer automatiquement le popup après 2 secondes
-    Future.delayed(const Duration(seconds: 2), () {
+     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         Navigator.of(context).pop(); // Fermer le modal
       }
@@ -115,16 +116,15 @@ class _loginScreenState extends State<loginScreen> with SingleTickerProviderStat
     return Scaffold(
       body: Stack(
         children: [
-          // Arrière-plan image couvrant tout l'écran
           Positioned.fill(
             child: Image.asset(
-              'assets/image.jpg', // Assurez-vous que ce fichier existe
+              'assets/image.jpg',
               fit: BoxFit.cover,
             ),
           ),
           Positioned.fill(
             child: Container(
-              color: Colors.black.withOpacity(0.5), // Fond semi-transparent
+              color: Colors.black.withOpacity(0.5),
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(
@@ -199,7 +199,8 @@ class _loginScreenState extends State<loginScreen> with SingleTickerProviderStat
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const RegScreen()),
+                            builder: (context) => const RegScreen(),
+                          ),
                         );
                       },
                       child: Container(

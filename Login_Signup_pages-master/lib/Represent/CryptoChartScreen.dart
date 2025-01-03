@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import '../helpers/database_helper.dart';
+import '../Represent/api_service.dart';
 
 class CryptoChartScreen extends StatefulWidget {
   const CryptoChartScreen({super.key});
@@ -16,22 +18,22 @@ class _CryptoChartScreenState extends State<CryptoChartScreen> {
 
   @override
   void initState() {
-    _chartData = _getInitialChartData();
+    super.initState();
+    _chartData = [];
+    _loadSavedData();  
     _zoomPanBehavior = ZoomPanBehavior(
       enablePinching: true,
       enablePanning: true,
-      zoomMode: ZoomMode.xy,  
+      zoomMode: ZoomMode.xy,
       enableDoubleTapZooming: true,
       enableMouseWheelZooming: true,
     );
 
-     _timer = Timer.periodic(const Duration(seconds: 2), (Timer timer) {
+    _timer = Timer.periodic(const Duration(seconds: 2), (Timer timer) {
       setState(() {
         _addDynamicData();
       });
     });
-
-    super.initState();
   }
 
   @override
@@ -58,8 +60,8 @@ class _CryptoChartScreenState extends State<CryptoChartScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-               const Text(
-                'EUR/USD - 1.03433',
+              const Text(
+                'BTC/USD - Live Data',
                 style: TextStyle(
                   color: Colors.green,
                   fontSize: 24,
@@ -68,15 +70,23 @@ class _CryptoChartScreenState extends State<CryptoChartScreen> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
-               Expanded(
+              Expanded(
                 child: SfCartesianChart(
                   zoomPanBehavior: _zoomPanBehavior,
                   primaryXAxis: CategoryAxis(
+                    title: AxisTitle(
+                      text: "Time (HH:mm)",
+                      textStyle: const TextStyle(color: Colors.white),
+                    ),
                     majorGridLines: const MajorGridLines(width: 0),
                     labelStyle: const TextStyle(color: Colors.white),
-                    interval: 1, // Intervalle entre les labels
+                    interval: 1,
                   ),
                   primaryYAxis: NumericAxis(
+                    title: AxisTitle(
+                      text: "Price (USD)",
+                      textStyle: const TextStyle(color: Colors.white),
+                    ),
                     axisLine: const AxisLine(width: 0),
                     labelStyle: const TextStyle(color: Colors.white),
                     majorGridLines: MajorGridLines(
@@ -108,6 +118,18 @@ class _CryptoChartScreenState extends State<CryptoChartScreen> {
                   _buildTimeButton('1M'),
                 ],
               ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _loadSavedData,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+                child: const Text(
+                  'Load Saved Data',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
             ],
           ),
         ),
@@ -129,39 +151,49 @@ class _CryptoChartScreenState extends State<CryptoChartScreen> {
     );
   }
 
-  List<CandleStickData> _getInitialChartData() {
-    return [
-      CandleStickData(date: '19:30', open: 1.034, high: 1.038, low: 1.030, close: 1.036),
-      CandleStickData(date: '19:45', open: 1.036, high: 1.041, low: 1.033, close: 1.035),
-      CandleStickData(date: '20:00', open: 1.035, high: 1.039, low: 1.032, close: 1.034),
-      CandleStickData(date: '20:15', open: 1.034, high: 1.037, low: 1.031, close: 1.032),
-      CandleStickData(date: '20:30', open: 1.032, high: 1.036, low: 1.030, close: 1.033),
-    ];
+  Future<void> _addDynamicData() async {
+    final apiService = ApiService();
+    final cryptoData = await apiService.fetchCryptoPrice('BTC');
+
+    if (cryptoData != null) {
+      final price = cryptoData['quote']['USD']['price'];
+      final lastData = _chartData.isNotEmpty ? _chartData.last : null;
+
+      final newData = CandleStickData(
+        date: lastData != null ? _getNextTime(lastData.date) : _getInitialTime(),
+        open: lastData?.close ?? price,
+        high: price + 0.005,
+        low: price - 0.005,
+        close: price,
+      );
+
+      setState(() {
+        _chartData.add(newData);
+        if (_chartData.length > 50) {
+          _chartData.removeAt(0);
+        }
+      });
+
+      final dbHelper = DatabaseHelper();
+      await dbHelper.insertCryptoPrice(newData);
+    }
   }
 
-  void _addDynamicData() {
-    final lastData = _chartData.last;
+  Future<void> _loadSavedData() async {
+    final dbHelper = DatabaseHelper();
+    final savedData = await dbHelper.getSavedCryptoPrices();
 
-     final isLastBullish = lastData.close > lastData.open;
-
-    final newOpen = lastData.close;
-    final newClose = isLastBullish
-        ? newOpen - 0.002  
-        : newOpen + 0.002;  
-
-    final newData = CandleStickData(
-      date: _getNextTime(lastData.date),
-      open: newOpen,
-      high: newClose + 0.003,
-      low: newClose - 0.003,
-      close: newClose,
-    );
-
-    _chartData.add(newData);
-
-    if (_chartData.length > 20) {
-       _chartData.removeAt(0);
-    }
+    setState(() {
+      _chartData = savedData.map((e) {
+        return CandleStickData(
+          date: e['date'],
+          open: e['open'],
+          high: e['high'],
+          low: e['low'],
+          close: e['close'],
+        );
+      }).toList();
+    });
   }
 
   String _getNextTime(String lastTime) {
@@ -173,6 +205,11 @@ class _CryptoChartScreenState extends State<CryptoChartScreen> {
     final newHour = hour + (minute + 15) ~/ 60;
 
     return '${newHour.toString().padLeft(2, '0')}:${newMinute.toString().padLeft(2, '0')}';
+  }
+
+  String _getInitialTime() {
+    final now = DateTime.now();
+    return '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
   }
 }
 
@@ -196,12 +233,11 @@ class BackgroundPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color.fromARGB(255, 0, 18, 36)  
+      ..color = const Color.fromARGB(255, 0, 18, 36)
       ..style = PaintingStyle.fill;
 
-     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint);
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint);
 
-    // Dessiner les carrés
     final gridPaint = Paint()
       ..color = Colors.white.withOpacity(0.05)
       ..strokeWidth = 1;
@@ -219,3 +255,5 @@ class BackgroundPainter extends CustomPainter {
     return false;
   }
 }
+
+ 
